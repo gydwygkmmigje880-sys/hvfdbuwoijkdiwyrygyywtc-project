@@ -1,5 +1,17 @@
 @use "../../styles/variables.scss" as *;
 
+.explorer-headless {
+  &.collapsed {
+    flex: 0 1 auto;
+  }
+
+  & .explorer-content {
+    margin-top: 0;
+    visibility: visible;
+    transform: none;
+  }
+}
+
 @media all and ($mobile) {
   .page > #quartz-body {
     // Shift page position when toggling Explorer on mobile.

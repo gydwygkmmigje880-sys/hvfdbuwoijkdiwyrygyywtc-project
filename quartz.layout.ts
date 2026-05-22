@@ -1,5 +1,39 @@
 import { PageLayout, SharedLayout } from "./quartz/cfg"
 import * as Component from "./quartz/components"
+import { Options as ExplorerOptions } from "./quartz/components/Explorer"
+
+const explorerSortFn: ExplorerOptions["sortFn"] = (a, b) => {
+  const sectionOrder: Record<string, number> = {
+    Доклады: 0,
+    Статьи: 1,
+    "Полезные материалы": 2,
+  }
+
+  if (a.isFolder && b.isFolder) {
+    const orderA = sectionOrder[a.displayName] ?? 99
+    const orderB = sectionOrder[b.displayName] ?? 99
+    if (orderA !== orderB) return orderA - orderB
+  }
+
+  if ((!a.isFolder && !b.isFolder) || (a.isFolder && b.isFolder)) {
+    return a.displayName.localeCompare(b.displayName, undefined, {
+      numeric: true,
+      sensitivity: "base",
+    })
+  }
+
+  if (!a.isFolder && b.isFolder) {
+    return 1
+  }
+
+  return -1
+}
+
+const explorerFilterFn: ExplorerOptions["filterFn"] = (node) => {
+  if (node.slugSegment === "tags") return false
+  if (!node.isFolder && node.slugSegment === "index") return false
+  return true
+}
 
 // components shared across all pages
 export const sharedPageComponents: SharedLayout = {
@@ -21,7 +55,10 @@ export const defaultContentPageLayout: PageLayout = {
       component: Component.Breadcrumbs(),
       condition: (page) => page.fileData.slug !== "index",
     }),
-    Component.ArticleTitle(),
+    Component.ConditionalRender({
+      component: Component.ArticleTitle(),
+      condition: (page) => page.fileData.slug !== "index",
+    }),
     Component.ContentMeta(),
     Component.TagList(),
   ],
@@ -38,7 +75,14 @@ export const defaultContentPageLayout: PageLayout = {
         { Component: Component.ReaderMode() },
       ],
     }),
-    Component.Explorer(),
+    Component.Explorer({
+      title: "",
+      folderDefaultState: "open",
+      folderClickBehavior: "collapse",
+      useSavedState: false,
+      sortFn: explorerSortFn,
+      filterFn: explorerFilterFn,
+    }),
   ],
   right: [
     Component.Graph(),
@@ -62,7 +106,14 @@ export const defaultListPageLayout: PageLayout = {
         { Component: Component.Darkmode() },
       ],
     }),
-    Component.Explorer(),
+    Component.Explorer({
+      title: "",
+      folderDefaultState: "open",
+      folderClickBehavior: "collapse",
+      useSavedState: false,
+      sortFn: explorerSortFn,
+      filterFn: explorerFilterFn,
+    }),
   ],
   right: [],
 }
