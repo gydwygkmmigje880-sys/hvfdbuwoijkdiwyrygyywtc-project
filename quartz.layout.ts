@@ -31,7 +31,8 @@ const explorerSortFn: ExplorerOptions["sortFn"] = (a, b) => {
 
 const explorerFilterFn: ExplorerOptions["filterFn"] = (node) => {
   if (node.slugSegment === "tags") return false
-  if (!node.isFolder && node.slugSegment === "index") return false
+  // Hide only the homepage, keep folder index pages (e.g. Статьи/index)
+  if (node.data?.slug === "index") return false
   return true
 }
 
@@ -60,6 +61,7 @@ export const defaultContentPageLayout: PageLayout = {
       condition: (page) => page.fileData.slug !== "index",
     }),
     Component.ContentMeta(),
+    Component.LectureMeta(),
     Component.TagList(),
   ],
   left: [
@@ -78,7 +80,7 @@ export const defaultContentPageLayout: PageLayout = {
     Component.Explorer({
       title: "",
       folderDefaultState: "open",
-      folderClickBehavior: "collapse",
+      folderClickBehavior: "link",
       useSavedState: false,
       sortFn: explorerSortFn,
       filterFn: explorerFilterFn,
@@ -109,7 +111,7 @@ export const defaultListPageLayout: PageLayout = {
     Component.Explorer({
       title: "",
       folderDefaultState: "open",
-      folderClickBehavior: "collapse",
+      folderClickBehavior: "link",
       useSavedState: false,
       sortFn: explorerSortFn,
       filterFn: explorerFilterFn,
